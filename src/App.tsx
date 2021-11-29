@@ -1,25 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
 import 'antd/dist/antd.css';
+import { useEffect, useState } from 'react';
+import useToken from './common/hooks/useAuth';
+import Auth from './features/Auth/Auth';
 
 function App() {
+
+  const { token } = useToken();
+  const [ loggedIn, setLoggedIn ] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!token) {
+      setLoggedIn(false);
+      return;
+    }
+    token.getIdToken().then(() => {
+      setLoggedIn(true);
+    }).catch((error) => {
+      console.error('Error fetching token: ', error);
+      setLoggedIn(false);
+    });
+  }, [token])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        
-      </header>
+    <div className="container">
+      {loggedIn && <div/> || <Auth/> }
     </div>
   );
 }
