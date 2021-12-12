@@ -2,15 +2,21 @@ import { css } from 'emotion';
 
 import { Menu } from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
+import { useToken } from '../../common/hooks/useAuth';
 
 const styles = {
-  overlayContainer: css({
+  header: css({
+    margin: '0 auto',
   }),
 }
 
 const AppMenu = (props: any) => {
+
+  
+  const { token, logout } = useToken();
+  
   const onLogout = () => {
-    console.log('handle logout'); // signout and remove token if required
+    logout();
   }
 
   return (
@@ -18,6 +24,7 @@ const AppMenu = (props: any) => {
       <Menu.Item key="logout" icon={<LogoutOutlined />}>
         Logout
       </Menu.Item>
+      <h1 className={styles.header}>Manage Tweets</h1>
     </Menu>
   )
 }
