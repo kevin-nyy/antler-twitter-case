@@ -1,8 +1,12 @@
-import { Button, Modal, Form } from 'antd';
+import { Button, Modal, Upload, Form, message as messageAlert } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import TextArea from 'antd/lib/input/TextArea';
 import { css } from 'emotion';
 import { useState } from 'react';
-import Composer from './Composer';
+import { uploadToFirebaseStorage, getFirebaseStorageObjectUrl } from '../../../config/configureFirebase';
+import { UploadFile } from 'antd/lib/upload/interface';
+import axios from 'axios';
+import useToken from '../../../common/hooks/useAuth';
 
 interface ComposerModalProps {
   isVisible: boolean;
@@ -24,90 +28,129 @@ const styles = {
 
 const ComposerModal = (props: ComposerModalProps) => {
 
-
-  // const [visible, setVisible] = useState(false);
+  const { token } = useToken();
   const { isVisible, onConfirm, onDismiss } = props;
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState('Content of the modal');
   const [loading, setLoading] = useState(false);
-
-  const DEFAULT_TWEET_LENGTH = 140;
+  const [tweetImage, setTweetImage] = useState<(File | null)>(null);
+  const [hasBody, setHasBody] = useState(false);
+  const DEFAULT_TWEET_LENGTH = 280;
   const [remainder, setRemainder] = useState<number>(DEFAULT_TWEET_LENGTH);
 
   const [form] = Form.useForm();
-  // TODO - change to onOkay 
-  const handleOk = () => {
-    // console.log(form);
-    form.submit();
-    // debugger;
-    setModalText('The modal will be closed after two seconds');
-    setLoading(true);
-    setTimeout(() => {
-      onConfirm();
-      setLoading(false);
-    }, 2000);
-  };
 
-  const handleCancel = () => {
-    console.log('Clicked cancel button');
+  const onCancel = () => {
     onDismiss();
   };
 
-  const onFormSubmit = (values: any) => {
-    console.log('test -- ', values);
+  const onFormSubmit = async ({ tweetBody: message }: any) => {
+    setLoading(true);
+    let media = null;
+    if (tweetImage) {
+      const uploadResult = await uploadToFirebaseStorage(tweetImage);
+      const downloadURL = getFirebaseStorageObjectUrl(uploadResult.metadata.bucket, uploadResult.metadata.fullPath);
+      media = [{
+        name: uploadResult.metadata.name,
+        downloadURL,
+        lastModifiedTS: new Date(uploadResult.metadata.timeCreated).valueOf(),
+        ref: uploadResult.ref.toString(),
+      }]
+    }
+    if (!token) {
+      return;
+    }
+    try {
+      await axios({
+        method: 'post',
+        url: process.env.REACT_APP_ENDPOINT_ROWY_CREATE_ROW,
+        data: {
+          message,
+          media
+        },
+        headers: { Authorization: `Bearer ${(token as any).accessToken}` }
+      });
+
+      setRemainder(DEFAULT_TWEET_LENGTH);
+      form.resetFields();
+      setHasBody(false);
+      setTweetImage(null);
+      onConfirm();
+      setLoading(false);
+      messageAlert.success('Tweet has been sent for approval.');
+    } catch (e) {
+      console.error('Error sending tweet for approval: ', e);
+      messageAlert.error('Something went wrong..please contact the admin of this app.');
+    }
   }
 
   const onTweetChanged = (evt: any) => {
-    console.log(evt);
-    // form.setFieldsValue({
-    //   msg: evt?.target?.value || '',
-    // });
-    //   return 140 - 23 - (this.state.text.length);
-    // } else {
-    //     return 140 - (this.state.text.length);
-    //   }
     const value = evt?.target?.value;
     if (!value) {
+      setHasBody(false);
       return;
+    }
+    if (!hasBody) {
+      setHasBody(true);
     }
     setRemainder(DEFAULT_TWEET_LENGTH - value.length);
   };
 
+  const handleFileUpload = ({ data, file, onSuccess }: any) => {
+    setTweetImage(file);
+    onSuccess(null, file, null)
+  };
+
+  const handleRemoveFileUpload = (file: UploadFile) => {
+    setTweetImage(null);
+    return true;
+  }
+
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
+
   return (
     <>
-    <Form form={form} name="control-hooks" preserve={false} onFinish={onFormSubmit}>
+      <Form form={form} name="control-hooks" preserve={false} onFinish={onFormSubmit}>
         <Modal
           wrapClassName={styles.composor}
           title="Compose Tweet"
           visible={isVisible}
-          onOk={handleOk}
-          confirmLoading={confirmLoading}
-          onCancel={handleCancel}
+          onOk={form.submit}
+          confirmLoading={false}
+          onCancel={onCancel}
           footer={[
             <span className={styles.remainder} key="remainder">{`${remainder} characters left`}</span>,
-            <div>
-            <Button key="back" onClick={handleCancel}>
-              Dismiss
-            </Button>
-            <Button key="submit" type="primary" disabled={remainder < 0} htmlType="submit" loading={loading} onClick={handleOk}>
-              Tweet
-            </Button></div>,
+            <div key="composer-modal-footer-button-container">
+              <Button key="back" onClick={onCancel}>
+                Dismiss
+              </Button>
+              <Button key="submit" type="primary" disabled={remainder < 0 || !hasBody} htmlType="submit" loading={loading} onClick={form.submit}>
+                Tweet
+              </Button></div>,
           ]}
         >
-          
-          {/* <p>{modalText}</p> */}
-          {/* <Composer form={form}></Composer>
-           */}
-
-
-
-  <Form.Item
-  noStyle name="msg">
-<TextArea rows={4} onChange={onTweetChanged} className="form-control"></TextArea>
-</Form.Item>
-          
+          <Form.Item
+            noStyle name="tweetBody">
+            <TextArea rows={4} onChange={onTweetChanged} className="form-control"></TextArea>
+          </Form.Item>
+          <br /> <br />
+          <Form.Item noStyle name="tweetImage" valuePropName={'fileList'} getValueFromEvent={normFile}>
+            <Upload
+              customRequest={handleFileUpload} // Docs: https://github.com/react-component/upload#customrequest
+              maxCount={1}
+              accept={".gif, .png, .jpg, .jpeg"}
+              listType="picture"
+              className="upload-list-inline"
+              onRemove={handleRemoveFileUpload}
+            >
+              <Button icon={<UploadOutlined />}>Add Image</Button>
+            </Upload>
+          </Form.Item>
         </Modal>
-        </Form>
+      </Form>
     </>
   );
 };

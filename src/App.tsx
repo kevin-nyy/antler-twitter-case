@@ -27,22 +27,21 @@ function App() {
   }, [token])
 
   if (!loggedIn) {
-    return <Auth/>;
+    return <Auth />;
   }
 
   return (
     <Layout>
-    <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-      <AppMenu></AppMenu>
-    </Header>
-    <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
-      <div className="site-layout-background" style={{ padding: 24, minHeight: 380 }}>
-        <TweetManager></TweetManager>
-      </div>
-    </Content>
-    <Footer style={{ textAlign: 'center' }}>Antler Interview Project ©2021</Footer>
-  </Layout>
-
+      <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+        <AppMenu></AppMenu>
+      </Header>
+      <Content className="site-layout" style={{ padding: '0 50px', marginTop: 64 }}>
+        <div className="site-layout-background" style={{ padding: 24, minHeight: 380 }}>
+          <TweetManager></TweetManager>
+        </div>
+      </Content>
+      <Footer style={{ textAlign: 'center' }}>Antler Interview Project ©2021</Footer>
+    </Layout>
   );
 }
 

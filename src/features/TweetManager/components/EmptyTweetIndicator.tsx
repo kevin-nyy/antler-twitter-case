@@ -1,11 +1,5 @@
-import { css } from 'emotion';
 import { Button, Empty } from 'antd';
 import { MouseEventHandler } from 'react';
-
-const styles = {
-  overlayContainer: css({
-  }),
-}
 
 interface EmptyTweetIndicatorProps {
   onClick: MouseEventHandler;
@@ -18,7 +12,7 @@ const EmptyTweetIndicator = (props: EmptyTweetIndicatorProps) => {
     <Empty
       description={
         <span>
-          No tweets to be shown yet
+          Tweet something!
         </span>
       }
     >

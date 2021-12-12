@@ -1,28 +1,25 @@
-import { css } from 'emotion';
-// import LoginForm from './components/LoginForm';
-import { Affix, Button } from 'antd';
-import Composer from './components/Composer';
 import EmptyTweetIndicator from './components/EmptyTweetIndicator';
 import ComposerAffix from './components/ComposerAffix';
 import { useState } from 'react';
 import ComposerModal from './components/ComposerModal';
-
-const styles = {
-  overlayContainer: css({
-  }),
-  // card: css({
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  // }),
-}
+import { useAsync, useMountEffect } from '@react-hookz/web';
+import getTweets from '../../api/cf/getTweets';
+import TweetsList from './components/TweetsList';
 
 const TweetManager = (props: any) => {
-  const [ visible, setVisible] = useState<boolean>(false);
+  const [visible, setVisible] = useState<boolean>(false);
+
+  // Example: https://react-hookz.github.io/web/?path=/docs/side-effect-useasync--example
+  const [getTweetsState, getTweetsMethods] = useAsync(
+    getTweets,
+    []
+  );
+
+  // async call to retrieve tweets
+  useMountEffect(getTweetsMethods.execute);
 
   const onModalClicked = () => {
     setVisible(true);
-    console.log('modal clicked!');
   }
 
   const onConfirm = () => {
@@ -32,11 +29,18 @@ const TweetManager = (props: any) => {
   const onDismiss = () => {
     setVisible(false);
   }
- 
+
+  const renderTweets = () => {
+    if (getTweetsState.result.length === 0 && getTweetsState.status !== 'loading') {
+      return (<EmptyTweetIndicator onClick={onModalClicked}></EmptyTweetIndicator>);
+    }
+    return (<TweetsList state={getTweetsState} />);
+  }
+
   return (
     <div>
       <ComposerAffix onClick={onModalClicked}></ComposerAffix>
-      <EmptyTweetIndicator onClick={onModalClicked}></EmptyTweetIndicator>
+      {renderTweets()}
       <ComposerModal isVisible={visible} onConfirm={onConfirm} onDismiss={onDismiss}></ComposerModal>
     </div>
   )
