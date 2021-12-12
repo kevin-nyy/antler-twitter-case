@@ -1,33 +1,50 @@
 
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink } from "firebase/auth";
 import { Form, Input, Button, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FormValues = {
   email: string;
-  password: string;
 }
 
 enum LoginError {
   INVALID_EMAIL = 'auth/invalid-email',
-  INVALID_PASSWORD = 'auth/wrong-password',
   USER_NOT_FOUND = 'auth/user-not-found',
+  INVALID_ACTION_CODE = 'auth/invalid-action-code',
+  USER_DISABLED = 'auth/user-disabled',
 }
+
+const actionCodeSettings = {
+  url: window.location.href, // this url will be used in the link generated and sent via email
+  handleCodeInApp: true, // This must be true. Docs: https://firebase.google.com/docs/auth/web/email-link-auth?authuser=0
+};
+
 
 const LoginForm = () => {
   const { Text } = Typography;
   const auth = getAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // TODO - email link instead - https://firebase.google.com/docs/auth/web/email-link-auth?authuser=0#send_an_authentication_link_to_the_users_email_address
-  const onLogin = async ({ email, password }: FormValues) => {
+  const isUsingEmailLink = isSignInWithEmailLink(auth, window.location.href);
+
+  const onLogin = async ({ email }: FormValues) => {
+    setIsLoading(true);
     try {
-      // this function has a side effect which modifies the auth object
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isUsingEmailLink) {
+        await processSignIn(email);
+        // bunnyngemail@gmail.com
+      } else {
+        await sendSignInLinkToEmail(auth, email, actionCodeSettings)
+        window.localStorage.setItem('emailForSignIn', email)
+      }
       setSubmitError(null);
+      setIsDisabled(true);
     } catch (errorInfo) {
       processLoginFailed(errorInfo)
     }
+    setIsLoading(false);
   };
 
   const onLoginFailed = (errorInfo: any) => {
@@ -37,8 +54,10 @@ const LoginForm = () => {
   const processLoginFailed = ({ code }: any) => {
     switch (code) {
       case LoginError.INVALID_EMAIL:
-      case LoginError.INVALID_PASSWORD:
         setSubmitError("Please check your credentials.");
+        break;
+      case LoginError.INVALID_ACTION_CODE:
+        setSubmitError("Login code has been used/expired.");
         break;
       case LoginError.USER_NOT_FOUND:
       default: // we dont want to give away security info
@@ -47,8 +66,41 @@ const LoginForm = () => {
     }
   }
 
+  const processSignIn = async (email: string) => {
+    try {
+      await signInWithEmailLink(auth as any, email as string, window.location.href);
+    } catch (err) {
+      console.error('Error: Something went wrong with signin via email link ', err);
+      processLoginFailed(err)
+    }
+    window.localStorage.removeItem('emailForSignIn');
+  }
+
+  useEffect(() => { // auto login if link params are avaliable
+    if (!isUsingEmailLink) {
+      return;
+    }
+    const email = window.localStorage.getItem('emailForSignIn');
+    if (!email) {
+      window.location.href = window.location.origin; // handle with refresh to remove stale params
+      return;
+    }
+    processSignIn(email);
+  }, [isUsingEmailLink]);
+
+  const getLoginButtonLabel = () => {
+    if (isUsingEmailLink) {
+      if (isLoading || isDisabled) {
+        return 'Signing in...';
+      }
+      return 'Login';
+    }
+    return isDisabled  ? 'Email Link Sent!' : 'Send link via email'
+  }
+
   return (
     <Form
+      layout="inline"
       name="login"
       labelCol={{
         span: 8,
@@ -78,30 +130,15 @@ const LoginForm = () => {
       >
         <Input />
       </Form.Item>
-
-      <Form.Item
-        label="Password"
-        name="password"
-        rules={[
-          {
-            required: true,
-            message: 'Enter your password.',
-          },
-        ]}
-      >
-        <Input.Password />
-      </Form.Item>
-
       <Form.Item
         wrapperCol={{
           span: 14,
           offset: 4,
         }}
       >
-
         <div>
-          <Button type="primary" htmlType="submit">
-            <span>Login</span>
+          <Button disabled={isDisabled} loading={isLoading} type="primary" htmlType="submit">
+            <span>{getLoginButtonLabel()}</span>
           </Button>
         </div>
       </Form.Item>

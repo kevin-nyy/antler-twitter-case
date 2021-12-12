@@ -36,6 +36,7 @@ const TweetsList = (props: TweetsListProps) => {
                 className={styles.links}
                 href={`${twitterLink}${username}`}
                 target='_blank'
+                rel="noreferrer"
               >
                 {username}
               </a>
