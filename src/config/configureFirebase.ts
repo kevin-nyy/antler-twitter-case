@@ -1,5 +1,8 @@
+import { UploadFile } from 'antd/lib/upload/interface';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 const firebaseConfig = {
     apiKey: "AIzaSyC1pfF-qckF3YtfyKR38BaDAt_rv2Xs0OE",
@@ -12,22 +15,19 @@ const firebaseConfig = {
 const firebaseInstance = firebase.initializeApp(firebaseConfig);
 export default firebaseInstance;
 
-// export const firebaseUIConfig = {
-//   // Popup signin flow rather than redirect flow.
-//   signInFlow: 'popup',
-//   signInOptions: [
-//     // firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-//     firebase.auth.EmailAuthProvider.PROVIDER_ID,
-//   ],
-//   callbacks: {
-//     // Avoid redirects after sign-in.
-//     signInSuccessWithAuthResult: (config: any) => {
-//       console.log('signed in!', config);
-//       // No redirect URL has been found. You must either:
-//       // 1. specify a signInSuccessUrl in the configuration
-//       // 2. pass in a redirect URL to the widget URL
-//       // 3. or return false from the callback
-//       return false;
-//     },
-//   },
-// };
+export const uploadToFirebaseStorage = async (file: any) => {
+    const storage = getStorage();
+    const filename = `${uuidv4()}-${file.name}`;
+    const storageRef = ref(storage, `twitter/${filename}`);
+    // 'file' comes from the Blob or File API
+    const buffer = await file.arrayBuffer();
+    const result = await uploadBytes(storageRef, buffer, {
+        contentType: file.type
+    });
+    
+    return result;
+}
+
+export const getFirebaseStorageObjectUrl = (bucket: string, fullPath: string) => {
+    return `https://storage.googleapis.com/${bucket}/${fullPath}`
+}

@@ -6,12 +6,11 @@ import reportWebVitals from './reportWebVitals';
 import './config/configureFirebase';
 import { TokenProvider } from './common/hooks/useAuth';
 
+
 ReactDOM.render(
-  <React.StrictMode>
     <TokenProvider>
       <App />
-    </TokenProvider>
-  </React.StrictMode>,
+    </TokenProvider>,
   document.getElementById('root')
 );
 
