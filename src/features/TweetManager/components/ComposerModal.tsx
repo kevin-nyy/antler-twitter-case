@@ -38,6 +38,7 @@ const ComposerModal = (props: ComposerModalProps) => {
   const [hasBody, setHasBody] = useState(false);
   const DEFAULT_TWEET_LENGTH = 280;
   const [remainder, setRemainder] = useState<number>(DEFAULT_TWEET_LENGTH);
+  const mediaFeatureToggle = process.env.REACT_APP_FEATURE_TOGGLE_TWITTER_UPLOAD_MEDIA;
 
   const [form] = Form.useForm();
 
@@ -144,18 +145,19 @@ const ComposerModal = (props: ComposerModalProps) => {
             <TextArea rows={4} onChange={onTweetChanged} className="form-control"></TextArea>
           </Form.Item>
           <br /> <br />
-          <Form.Item noStyle name="tweetImage" valuePropName={'fileList'} getValueFromEvent={normFile}>
-            <Upload
-              customRequest={handleFileUpload} // Docs: https://github.com/react-component/upload#customrequest
-              maxCount={1}
-              accept={".gif, .png, .jpg, .jpeg"}
-              listType="picture"
-              className="upload-list-inline"
-              onRemove={handleRemoveFileUpload}
-            >
-              <Button icon={<UploadOutlined />}>Add Image</Button>
-            </Upload>
-          </Form.Item>
+          {mediaFeatureToggle &&
+            <Form.Item noStyle name="tweetImage" valuePropName={'fileList'} getValueFromEvent={normFile}>
+              <Upload
+                customRequest={handleFileUpload} // Docs: https://github.com/react-component/upload#customrequest
+                maxCount={1}
+                accept={".gif, .png, .jpg, .jpeg"}
+                listType="picture"
+                className="upload-list-inline"
+                onRemove={handleRemoveFileUpload}
+              >
+                <Button icon={<UploadOutlined />}>Add Image</Button>
+              </Upload>
+            </Form.Item>}
         </Modal>
       </Form>
     </>
