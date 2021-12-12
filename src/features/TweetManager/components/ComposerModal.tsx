@@ -5,8 +5,11 @@ import { css } from 'emotion';
 import { useState } from 'react';
 import { uploadToFirebaseStorage, getFirebaseStorageObjectUrl } from '../../../config/configureFirebase';
 import { UploadFile } from 'antd/lib/upload/interface';
-import axios from 'axios';
 import useToken from '../../../common/hooks/useAuth';
+import { Timestamp } from '@google-cloud/firestore';
+import createRow, { Media } from '../../../api/rowy/createRow';
+
+
 
 interface ComposerModalProps {
   isVisible: boolean;
@@ -44,7 +47,7 @@ const ComposerModal = (props: ComposerModalProps) => {
 
   const onFormSubmit = async ({ tweetBody: message }: any) => {
     setLoading(true);
-    let media = null;
+    let media: Media | null = null;
     if (tweetImage) {
       const uploadResult = await uploadToFirebaseStorage(tweetImage);
       const downloadURL = getFirebaseStorageObjectUrl(uploadResult.metadata.bucket, uploadResult.metadata.fullPath);
@@ -59,14 +62,18 @@ const ComposerModal = (props: ComposerModalProps) => {
       return;
     }
     try {
-      await axios({
-        method: 'post',
-        url: process.env.REACT_APP_ENDPOINT_ROWY_CREATE_ROW,
-        data: {
-          message,
-          media
-        },
-        headers: { Authorization: `Bearer ${(token as any).accessToken}` }
+      await createRow(token, {
+        message,
+        media,
+        _createdBy: {
+          displayName: token.displayName,
+          email: token.email,
+          emailVerified: token.emailVerified,
+          isAnonymous: token.isAnonymous,
+          photoURL: token.photoURL,
+          uid: token.uid,
+          timestamp: Timestamp.now().toMillis()
+        }
       });
 
       setRemainder(DEFAULT_TWEET_LENGTH);
