@@ -1,6 +1,7 @@
 import { css } from 'emotion';
 import LoginForm from './components/LoginForm';
 import { Card } from 'antd';
+import useToken from '../../common/hooks/useAuth';
 
 const styles = {
   container: css({

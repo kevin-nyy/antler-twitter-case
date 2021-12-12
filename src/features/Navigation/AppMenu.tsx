@@ -13,7 +13,7 @@ const styles = {
 const AppMenu = (props: any) => {
 
   
-  const { token, logout } = useToken();
+  const { logout } = useToken();
   
   const onLogout = () => {
     logout();

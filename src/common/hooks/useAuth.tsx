@@ -17,10 +17,12 @@ export const TokenContext = createContext<TokenContextProps | null>(null);
 export const TokenProvider = ({ children }: Props) => {
 
   const auth = getAuth();
+
   const [token, setToken] = useState<User | null>(null);
+  const [isUserDisabled, setIsUserDisabled] = useState<Boolean>(false);
 
   const logout = async () => {
-    return await signOut(auth);
+    return await signOut(auth); // removes token object
   };
 
   useEffect(() => {

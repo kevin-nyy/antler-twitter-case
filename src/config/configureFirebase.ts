@@ -1,4 +1,3 @@
-import { UploadFile } from 'antd/lib/upload/interface';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import { getStorage, ref, uploadBytes } from "firebase/storage";

@@ -5,11 +5,12 @@ import useToken from './common/hooks/useAuth';
 import Auth from './features/Auth/Auth';
 import AppMenu from './features/Navigation/AppMenu';
 import TweetManager from './features/TweetManager/TweetManager';
+import { getAuth } from "firebase/auth";
 
 const { Header, Content, Footer } = Layout;
 
 function App() {
-
+  const auth = getAuth();
   const { token } = useToken();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -18,7 +19,7 @@ function App() {
       setLoggedIn(false);
       return;
     }
-    token.getIdToken().then(() => {
+    token.getIdToken(true).then(() => { // to check if user is banned
       setLoggedIn(true);
     }).catch((error) => {
       console.error('Error fetching token: ', error);
@@ -40,7 +41,7 @@ function App() {
           <TweetManager></TweetManager>
         </div>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>Antler Interview Project ©2021</Footer>
+      <Footer style={{ textAlign: 'center' }}>Antler Interview Project 2021</Footer>
     </Layout>
   );
 }
