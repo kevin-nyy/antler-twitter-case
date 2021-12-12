@@ -7,6 +7,9 @@ import { uploadToFirebaseStorage, getFirebaseStorageObjectUrl } from '../../../c
 import { UploadFile } from 'antd/lib/upload/interface';
 import axios from 'axios';
 import useToken from '../../../common/hooks/useAuth';
+import { Timestamp } from '@google-cloud/firestore';
+
+
 
 interface ComposerModalProps {
   isVisible: boolean;
@@ -64,7 +67,16 @@ const ComposerModal = (props: ComposerModalProps) => {
         url: process.env.REACT_APP_ENDPOINT_ROWY_CREATE_ROW,
         data: {
           message,
-          media
+          media,
+          _createdBy: {
+            displayName: token.displayName,
+            email: token.email,
+            emailVerified: token.emailVerified,
+            isAnonymous: token.isAnonymous,
+            photoURL: token.photoURL,
+            uid: token.uid,
+            timestamp: Timestamp.now().toMillis()
+          }
         },
         headers: { Authorization: `Bearer ${(token as any).accessToken}` }
       });
