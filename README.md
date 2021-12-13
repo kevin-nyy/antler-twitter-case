@@ -44,6 +44,7 @@ npm run deploy # installs, builds and calls firebase deploy
 
 `build/` &#8594; app distributable will be avaliable here after building
 
+`functions/` &#8594; Firebase cloud functions
 
 ### Known Issues
 
