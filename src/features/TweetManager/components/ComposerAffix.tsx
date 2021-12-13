@@ -10,7 +10,7 @@ const ComposerAffix = (props: ComposerAffixProps) => {
   const { onClick } = props;
 
   return (
-    <Affix style={{ position: 'absolute', right: '2vw' }} offsetTop={100} onChange={(affixed) => console.log(affixed)}>
+    <Affix style={{ position: 'absolute', right: '2vw' }} offsetTop={100}>
       <Button onClick={onClick} type="primary" shape="circle" icon={<TwitterOutlined />} size={"large"} />
     </Affix>
   )

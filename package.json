@@ -25,7 +25,8 @@
     "start": "react-app-rewired start --config-overrides src/config/configureWebpackOverrides",
     "build": "react-app-rewired build --config-overrides src/config/configureWebpackOverrides",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "npm ci && npm run build && firebase deploy"
   },
   "eslintConfig": {
     "extends": [

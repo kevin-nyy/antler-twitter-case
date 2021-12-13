@@ -38,8 +38,7 @@ const ComposerModal = (props: ComposerModalProps) => {
   const [hasBody, setHasBody] = useState(false);
   const DEFAULT_TWEET_LENGTH = 280;
   const [remainder, setRemainder] = useState<number>(DEFAULT_TWEET_LENGTH);
-  const mediaFeatureToggle = process.env.REACT_APP_FEATURE_TOGGLE_TWITTER_UPLOAD_MEDIA;
-
+  const shouldShowMediaFeature = process.env.REACT_APP_FEATURE_TOGGLE_TWITTER_UPLOAD_MEDIA === 'true';
   const [form] = Form.useForm();
 
   const onCancel = () => {
@@ -145,7 +144,7 @@ const ComposerModal = (props: ComposerModalProps) => {
             <TextArea rows={4} onChange={onTweetChanged} className="form-control"></TextArea>
           </Form.Item>
           <br /> <br />
-          {mediaFeatureToggle &&
+          {shouldShowMediaFeature &&
             <Form.Item noStyle name="tweetImage" valuePropName={'fileList'} getValueFromEvent={normFile}>
               <Upload
                 customRequest={handleFileUpload} // Docs: https://github.com/react-component/upload#customrequest
