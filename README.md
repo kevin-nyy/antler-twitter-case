@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# Readme
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Please read this document to understand the technical details of the Antler Interview Twitter Application.
 
-## Available Scripts
+If you're new, please read the `Getting Started` section.
 
-In the project directory, you can run:
+For more details, please read the `Further Reading` section.
 
-### `npm start`
+## Demo
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Live Demo: https://antler-twitter-app.web.app/
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Getting Started
 
-### `npm test`
+### Running locally
+```
+npm install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+npm run start
+```
+**`Note:`** Connects to firebase backend, see .env files for more details
 
-### `npm run build`
+### Deploying Demo
+```
+npm run deploy # installs, builds and calls firebase deploy
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Further Reading
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Project Structure
+`src/config/` &#8594; firebase and webpack configuration
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`src/config/configureWebpackOverrides` &#8594; hook to configure CRA without ejecting
 
-### `npm run eject`
+`src/index.tsx/` &#8594; app Entry point
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+`src/api/` &#8594; API integration logic
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+`src/common/` &#8594; shared logic among features, including hooks and components
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+`src/features/` &#8594; major features of the app
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+`public/` &#8594; assets such as index.html, images
 
-## Learn More
+`build/` &#8594; app distributable will be avaliable here after building
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Known Issues
 
-### Code Splitting
+**Notes on Twitter API**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Currently our twitter api can only access v2 api. To support media uploads (v1.1 Twitter API required) an elevated api authorization must be applied and approved.
 
-### Analyzing the Bundle Size
+After successful approval please toggle the feature flag in .env to turn on media upload feature.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Technology Stack
+* [Ant Design System](https://ant.design/)
+* [Axios](https://axios-http.com/)
+* [CRA](https://github.com/facebook/create-react-app)
+* [Emotion](https://emotion.sh/)
+* [Firebase](https://firebase.google.com/)
+* [React](https://reactjs.org/)
+* [Rowy](https://www.rowy.io/)
+* [Typescript](https://typescriptlang.org/)
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Supported Languages
+- English (en)
