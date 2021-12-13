@@ -19,7 +19,6 @@ export const TokenProvider = ({ children }: Props) => {
   const auth = getAuth();
 
   const [token, setToken] = useState<User | null>(null);
-  const [isUserDisabled, setIsUserDisabled] = useState<Boolean>(false);
 
   const logout = async () => {
     return await signOut(auth); // removes token object
@@ -41,13 +40,13 @@ export const TokenProvider = ({ children }: Props) => {
 };
 
 /* Usage
-  const { token, setToken } = useToken();
+  const { token, setToken, logout } = useToken();
 */
 export const useToken = () => {
 
   const context = useContext(TokenContext);
   if (context === null) {
-    throw new Error('useToken must be used within TokenProvider');
+    throw new Error('Error: useToken must be used within TokenProvider');
   }
   return context;
 };
